@@ -1,0 +1,39 @@
+services:
+  api:
+    build:
+      context: ./api
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://deps_user:deps_pass@db:5432/deps_db
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - db
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - deps-net
+
+  db:
+    image: postgres:16
+    container_name: deps-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: deps_user
+      POSTGRES_PASSWORD: deps_pass
+      POSTGRES_DB: depos_db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - deps-net
+
+volumes:
+  db-data:
+
+networks:
+  deps-net:
