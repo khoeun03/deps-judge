@@ -23,7 +23,7 @@ services:
     environment:
       POSTGRES_USER: deps_user
       POSTGRES_PASSWORD: deps_pass
-      POSTGRES_DB: depos_db
+      POSTGRES_DB: deps_db
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d

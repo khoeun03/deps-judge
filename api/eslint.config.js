@@ -1,12 +1,12 @@
 import js from '@eslint/js';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig([
-  globalIgnores(['**/node_modules', '**/dist']),
+  globalIgnores(['**/node_modules', '**/dist', '**/drizzle']),
   {
     name: 'eslint-js-recommended-rules',
     plugins: {
@@ -14,6 +14,10 @@ export default defineConfig([
       'simple-import-sort': simpleImportSort,
     },
     extends: ['js/recommended'],
+    rules: {
+      'simple-import-sort/imports': 'error',
+      'simple-import-sort/exports': 'error',
+    },
   },
   tseslint.configs.recommended.map((conf) => ({
     ...conf,

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "dist",
 
     "target": "ES2022",
@@ -12,7 +12,7 @@
 
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
-    
+
     "strict": true,
     "exactOptionalPropertyTypes": true,
     "noUnusedLocals": true,
@@ -20,5 +20,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src", "drizzle.config.ts"]
 }
