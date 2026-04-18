@@ -5,7 +5,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
-      DATABASE_URL: postgres://deps_user:deps_pass@db:5432/deps_db
+      DATABASE_URL: postgres://deps_user:deps_pass@db:5432/deps_judge_db
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -14,26 +14,26 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - deps-net
+      - deps-judge-net
 
   db:
     image: postgres:16
-    container_name: deps-db
+    container_name: deps-judge-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: deps_user
       POSTGRES_PASSWORD: deps_pass
-      POSTGRES_DB: deps_db
+      POSTGRES_DB: deps_judge_db
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     networks:
-      - deps-net
+      - deps-judge-net
 
 volumes:
   db-data:
 
 networks:
-  deps-net:
+  deps-judge-net:
