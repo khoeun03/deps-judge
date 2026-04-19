@@ -24,10 +24,10 @@ export const problem = pgTable('problem', {
 export const submission = pgTable(
   'submission',
   {
-    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
-    problemId: bigserial('problem_id', { mode: 'bigint' }).notNull(),
+    id: bigserial({ mode: 'number' }).primaryKey().notNull(),
+    problemId: bigserial('problem_id', { mode: 'number' }).notNull(),
     userPublicKey: text('user_public_key').notNull(),
-    submittedAt: timestamp('submitted_at', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
+    submittedAt: timestamp('submitted_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
     signature: text().notNull(),
   },
   (table) => [
@@ -45,8 +45,8 @@ export const submission = pgTable(
 export const submissionFile = pgTable(
   'submission_file',
   {
-    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
-    submissionId: bigserial('submission_id', { mode: 'bigint' }).notNull(),
+    id: bigserial({ mode: 'number' }).primaryKey().notNull(),
+    submissionId: bigserial('submission_id', { mode: 'number' }).notNull(),
     filename: text().notNull(),
     language: text(),
     code: text().notNull(),
@@ -64,8 +64,8 @@ export const submissionFile = pgTable(
 export const verdict = pgTable(
   'verdict',
   {
-    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
-    submissionId: bigserial('submission_id', { mode: 'bigint' }).notNull(),
+    id: bigserial({ mode: 'number' }).primaryKey().notNull(),
+    submissionId: bigserial('submission_id', { mode: 'number' }).notNull(),
     result: verdictResult().notNull(),
     timeMs: integer('time_ms'),
     memoryKb: integer('memory_kb'),

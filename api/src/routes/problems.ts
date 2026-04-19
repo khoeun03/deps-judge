@@ -1,11 +1,10 @@
 import 'dotenv/config';
 
-import { readFileSync } from 'node:fs';
-
 import type { FastifyInstance } from 'fastify';
 
 import { db } from '../db/index.js';
 import { problem } from '../db/schema.js';
+import { loadProblemMeta, loadProblemStatement } from '../utils/problem.js';
 
 export default async (app: FastifyInstance) => {
   app.get<{
@@ -28,7 +27,7 @@ export default async (app: FastifyInstance) => {
 
     return {
       data: problems.map(({ id, title }) => ({
-        id: `#${id}::${process.env.DEPS_JUDGE_DOMAIN}`,
+        id: `${id}::${process.env.DEPS_JUDGE_DOMAIN}`,
         title,
       })),
       totalCount,
@@ -40,14 +39,18 @@ export default async (app: FastifyInstance) => {
   }>('/problems/:problemId', async (request, reply) => {
     const { problemId } = request.params;
 
+    const match = problemId.match(/^(\d+)::.+$/);
+    if (!match) return;
+
+    const [_, id] = match;
     const problem = await db.query.problem.findFirst({
-      where: (fields, { eq }) => eq(fields.id, Number(problemId)),
+      where: (fields, { eq }) => eq(fields.id, Number(id)),
     });
     if (!problem) return reply.code(404).send({ error: 'Problem not found' });
 
     try {
-      const meta = JSON.parse(readFileSync(`${problem.problemPath}/problem.json`, 'utf-8'));
-      const statement = readFileSync(`${problem.problemPath}/statement.md`, 'utf-8');
+      const meta = await loadProblemMeta(problem.problemPath);
+      const statement = await loadProblemStatement(problem.problemPath);
 
       return {
         id: `#${problem.id}::${process.env.DEPS_JUDGE_DOMAIN}`,
