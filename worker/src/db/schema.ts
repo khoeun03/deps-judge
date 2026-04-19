@@ -12,7 +12,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 export const submissionStatus = pgEnum('submission_status', ['waiting', 'judging', 'finished']);
-export const verdictResult = pgEnum('verdict_result', ['AC', 'WA', 'TLE', 'MLE', 'RE', 'CE', 'IE']);
+export const verdictResult = pgEnum('verdict_result', ['AC', 'WA', 'TLE', 'MLE', 'OLE', 'RE', 'CE', 'IE']);
 
 export const problem = pgTable('problem', {
   // You can use { mode: "bigint" } if numbers are exceeding js number limitations

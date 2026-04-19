@@ -11,10 +11,29 @@ services:
     restart: unless-stopped
     depends_on:
       - db
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - deps-judge-net
+
+  worker:
+    build:
+      context: ./worker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./problems:/data/problems:ro
+      - /tmp/deps-judge:/tmp/deps-judge
+    environment:
+      DATABASE_URL: postgres://deps_user:deps_pass@db:5432/deps_judge_db
+      WORK_DIR: /tmp/deps-judge
+    depends_on:
+      - db
+    networks:
+      - deps-judge-net
+
+  sandbox-build:
+    build:
+      context: ./worker/image/sandbox
+    image: deps-judge-sandbox
+    entrypoint: ["echo", "sandbox image ready"]
 
   db:
     image: postgres:16

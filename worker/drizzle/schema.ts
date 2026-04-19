@@ -1,4 +1,5 @@
 import { pgTable, bigint, text, index, foreignKey, bigserial, timestamp, unique, integer, pgEnum } from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm"
 
 export const submissionStatus = pgEnum("submission_status", ['waiting', 'judging', 'finished'])
 export const verdictResult = pgEnum("verdict_result", ['AC', 'WA', 'TLE', 'MLE', 'RE', 'CE', 'IE'])
@@ -12,8 +13,8 @@ export const problem = pgTable("problem", {
 });
 
 export const submission = pgTable("submission", {
-	id: bigserial({ mode: "number" }).primaryKey().notNull(),
-	problemId: bigserial("problem_id", { mode: "number" }).notNull(),
+	id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+	problemId: bigserial("problem_id", { mode: "bigint" }).notNull(),
 	userPublicKey: text("user_public_key").notNull(),
 	format: text().notNull(),
 	submittedAt: timestamp("submitted_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
@@ -31,8 +32,8 @@ export const submission = pgTable("submission", {
 ]);
 
 export const submissionFile = pgTable("submission_file", {
-	id: bigserial({ mode: "number" }).primaryKey().notNull(),
-	submissionId: bigserial("submission_id", { mode: "number" }).notNull(),
+	id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+	submissionId: bigserial("submission_id", { mode: "bigint" }).notNull(),
 	filename: text().notNull(),
 	language: text(),
 	code: text().notNull(),
@@ -46,8 +47,8 @@ export const submissionFile = pgTable("submission_file", {
 ]);
 
 export const verdict = pgTable("verdict", {
-	id: bigserial({ mode: "number" }).primaryKey().notNull(),
-	submissionId: bigserial("submission_id", { mode: "number" }).notNull(),
+	id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+	submissionId: bigserial("submission_id", { mode: "bigint" }).notNull(),
 	result: verdictResult().notNull(),
 	timeMs: integer("time_ms"),
 	memoryKb: integer("memory_kb"),

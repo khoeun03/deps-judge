@@ -22,8 +22,29 @@ services:
     depends_on:
       - db
     volumes:
+      - ./problems:/data/problems:ro
+    networks:
+      - deps-judge-net
+
+  worker:
+    build:
+      context: ./worker
+    develop:
+      watch:
+        - action: sync
+          path: ./worker/
+          target: /app/
+        - action: rebuild
+          path: ./worker/package.json
+    volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./problems:/data/problems:ro
+      - /tmp/deps-judge:/tmp/deps-judge
+    environment:
+      DATABASE_URL: postgres://deps_user:deps_pass@db:5432/deps_judge_db
+      WORK_DIR: /tmp/deps-judge
+    depends_on:
+      - db
     networks:
       - deps-judge-net
 

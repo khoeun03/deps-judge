@@ -7,7 +7,6 @@ import { verifySignedData } from '../utils/verify.js';
 
 type SubmissionFile = {
   language: string;
-  name?: string;
   content: string;
 };
 
@@ -17,10 +16,12 @@ export default async (app: FastifyInstance) => {
     Body: {
       key: string;
       data: {
-        files: SubmissionFile[];
+        format: string;
+        files: Record<string, SubmissionFile>;
         signedAt: Date;
       };
       sign: string;
+      pow: string;
     };
   }>(
     '/problems/:problemId/submit',
@@ -43,6 +44,9 @@ export default async (app: FastifyInstance) => {
       if (!verifySignedData(request.body)) return reply.code(400).send({ error: 'Invalid signature' });
       const { key, data, sign } = request.body;
 
+      // TODO: POW 검증
+      console.log(data);
+
       const existingSubmission = await db.query.submission.findFirst({
         where: (fields, { eq }) => eq(fields.signature, sign),
       });
@@ -54,8 +58,33 @@ export default async (app: FastifyInstance) => {
       if (!problem) return reply.code(404).send({ error: 'Problem not found' });
 
       const meta = await loadProblemMeta(problem.problemPath);
-      if (data.files.some((file) => !meta.languages.includes(file.language)))
-        return reply.code(400).send({ error: 'Invalid language' });
+      const format = meta.formats[data.format];
+      if (!format) return reply.code(400).send({ error: 'Invalid format' });
+
+      if (Object.keys(data.files).length < (format.fileCount?.min ?? -Infinity))
+        return reply.code(400).send({ error: 'Out of file count limit' });
+      if (Object.keys(data.files).length > (format.fileCount?.max ?? Infinity))
+        return reply.code(400).send({ error: 'Out of file count limit' });
+
+      let totalBytes = 0;
+      let hasInvalidFile = false;
+
+      Object.entries(data.files).forEach(([filename, { language, content }]) => {
+        totalBytes += Buffer.byteLength(content, 'utf-8');
+
+        const file = format.files[filename];
+        if (!file) return;
+        if (!file.languages.includes(language)) {
+          hasInvalidFile = true;
+          return;
+        }
+      });
+
+      if (hasInvalidFile) return reply.code(400).send({ error: 'Invalid format' });
+      if (totalBytes < (format.totalBytes?.min ?? -Infinity))
+        return reply.code(400).send({ error: 'Out of total bytes limit' });
+      if (totalBytes > (format.totalBytes?.max ?? Infinity))
+        return reply.code(400).send({ error: 'Out of total bytes limit' });
 
       const submissionId = await db.transaction(async (tx) => {
         const [newSubmission] = await tx
@@ -63,15 +92,16 @@ export default async (app: FastifyInstance) => {
           .values({
             problemId: Number(id),
             userPublicKey: key,
+            format: data.format,
             submittedAt: new Date(),
             signature: sign,
           })
           .returning();
 
         await tx.insert(submissionFile).values(
-          data.files.map(({ language, name = '', content }) => ({
+          Object.entries(data.files).map(([filename, { language, content }]) => ({
             submissionId: newSubmission.id,
-            filename: name,
+            filename,
             language,
             code: content,
           })),

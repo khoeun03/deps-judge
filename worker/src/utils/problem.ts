@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readdirSync, readFileSync } from 'fs';
 
 export type MinMaxRequirement = {
   min: number | undefined;
@@ -37,8 +37,19 @@ const loadProblemMeta = async (problemPath: string): Promise<ProblemMeta> => {
   return JSON.parse(readFileSync(`${problemPath}/problem.json`, 'utf-8'));
 };
 
-const loadProblemStatement = async (problemPath: string): Promise<string> => {
-  return readFileSync(`${problemPath}/statement.md`, 'utf-8');
+const loadTestCases = async (problemPath: string): Promise<TestCase[]> => {
+  const dirs = readdirSync(`${problemPath}/testcases`, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && /^\d+$/.test(d.name))
+    .sort((a, b) => Number(a.name) - Number(b.name));
+
+  const testCases = dirs.map((dir) => {
+    const basePath = `${problemPath}/testcases/${dir.name}`;
+    const input = readFileSync(`${basePath}/input.txt`, 'utf-8');
+    const output = readFileSync(`${basePath}/output.txt`, 'utf-8');
+    return { input, output };
+  });
+
+  return testCases;
 };
 
-export { loadProblemMeta, loadProblemStatement };
+export { loadProblemMeta, loadTestCases };

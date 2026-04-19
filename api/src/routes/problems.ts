@@ -64,7 +64,10 @@ export default async (app: FastifyInstance) => {
               {
                 totalBytes: format.totalBytes,
                 fileCount: format.fileCount,
-                files: format.files,
+                files: Object.entries(format.files).map(([filename, file]) => ({
+                  name: filename,
+                  ...file,
+                })),
               },
             ];
           }),

@@ -18,6 +18,7 @@ CREATE TABLE submission (
     id              BIGSERIAL PRIMARY KEY,
     problem_id      BIGSERIAL   NOT NULL REFERENCES problem(id),
     user_public_key TEXT        NOT NULL,
+    format          TEXT        NOT NULL,
     submitted_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
     signature       TEXT        NOT NULL,
     status          submission_status NOT NULL DEFAULT 'waiting'
@@ -48,6 +49,7 @@ CREATE TYPE verdict_result AS ENUM (
     'WA',   -- Wrong Answer
     'TLE',  -- Time Limit Exceeded
     'MLE',  -- Memory Limit Exceeded
+    'OLE',  -- Output Limit Exceeded
     'RE',   -- Runtime Error
     'CE',   -- Compilation Error
     'IE'    -- Internal Error

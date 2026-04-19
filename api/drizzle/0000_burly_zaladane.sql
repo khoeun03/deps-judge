@@ -13,6 +13,7 @@ CREATE TABLE "submission" (
 	"id" bigserial PRIMARY KEY NOT NULL,
 	"problem_id" bigserial NOT NULL,
 	"user_public_key" text NOT NULL,
+	"format" text NOT NULL,
 	"submitted_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"signature" text NOT NULL,
 	"status" "submission_status" DEFAULT 'waiting' NOT NULL
@@ -33,10 +34,7 @@ CREATE TABLE "verdict" (
 	"result" "verdict_result" NOT NULL,
 	"time_ms" integer,
 	"memory_kb" integer,
-	"problem_revision" integer NOT NULL,
-	"dataset_hash" text NOT NULL,
 	"judged_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"judge_signature" text NOT NULL,
 	"invalidated_at" timestamp with time zone,
 	"invalidated_reason" text
 );

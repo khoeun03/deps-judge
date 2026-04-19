@@ -1,0 +1,33 @@
+{
+  "title": "A + B",
+  "timeLimit": 1000,
+  "memoryLimit": 256,
+  "formats": {
+    "cpp": {
+      "totalBytes": { "max": 65536 },
+      "fileCount": { "min": 1, "max": 1 },
+      "files": [
+        {
+          "name": "main.cpp",
+          "languages": ["C++"]
+        }
+      ],
+      "scripts": {
+        "build": "build.sh",
+        "run": "run.sh"
+      }
+    },
+    "python": {
+      "totalBytes": { "max": 65536 },
+      "fileCount": { "min": 1, "max": 1 },
+      "files": {
+        "main.py": {
+          "languages": ["Python"]
+        }
+      },
+      "scripts": {
+        "run": "run.sh"
+      }
+    }
+  }
+}
