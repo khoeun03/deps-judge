@@ -1,10 +1,34 @@
 import { readFileSync } from 'fs';
 
+export type MinMaxRequirement = {
+  min: number | undefined;
+  max: number | undefined;
+};
+
 export type ProblemMeta = {
   title: string;
   timeLimit: number;
   memoryLimit: number;
-  languages: string[];
+  formats: Record<
+    string,
+    {
+      totalBytes: MinMaxRequirement | undefined;
+      fileCount: MinMaxRequirement | undefined;
+      files: {
+        name: string;
+        languages: string[];
+        content: string | undefined;
+        count: MinMaxRequirement | undefined;
+        bytes: MinMaxRequirement | undefined;
+      }[];
+      scripts: Record<string, string>;
+    }
+  >;
+};
+
+export type TestCase = {
+  input: string;
+  output: string;
 };
 
 const loadProblemMeta = async (problemPath: string): Promise<ProblemMeta> => {

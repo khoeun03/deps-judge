@@ -3,8 +3,6 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- ============================================================
 -- Problem
 -- ============================================================
-CREATE TYPE checker_type AS ENUM ('exact', 'epsilon', 'special_judge');
-
 CREATE TABLE problem (
     id              BIGINT PRIMARY KEY,
     title           TEXT        NOT NULL,
@@ -14,12 +12,15 @@ CREATE TABLE problem (
 -- ============================================================
 -- Submission
 -- ============================================================
+CREATE TYPE submission_status AS ENUM ('waiting', 'judging', 'finished');
+
 CREATE TABLE submission (
     id              BIGSERIAL PRIMARY KEY,
     problem_id      BIGSERIAL   NOT NULL REFERENCES problem(id),
     user_public_key TEXT        NOT NULL,
     submitted_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-    signature       TEXT        NOT NULL
+    signature       TEXT        NOT NULL,
+    status          submission_status NOT NULL DEFAULT 'waiting'
 );
 
 CREATE INDEX idx_submission_problem   ON submission(problem_id);
@@ -58,10 +59,7 @@ CREATE TABLE verdict (
     result              verdict_result  NOT NULL,
     time_ms             INT,
     memory_kb           INT,
-    problem_revision    INT             NOT NULL,
-    dataset_hash        TEXT            NOT NULL,
     judged_at           TIMESTAMPTZ     NOT NULL DEFAULT now(),
-    judge_signature     TEXT            NOT NULL,
     invalidated_at      TIMESTAMPTZ,
     invalidated_reason  TEXT
 );

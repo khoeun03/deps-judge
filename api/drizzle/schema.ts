@@ -1,7 +1,7 @@
 import { pgTable, bigint, text, index, foreignKey, bigserial, timestamp, unique, integer, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
-export const checkerType = pgEnum("checker_type", ['exact', 'epsilon', 'special_judge'])
+export const submissionStatus = pgEnum("submission_status", ['waiting', 'judging', 'finished'])
 export const verdictResult = pgEnum("verdict_result", ['AC', 'WA', 'TLE', 'MLE', 'RE', 'CE', 'IE'])
 
 
@@ -18,6 +18,7 @@ export const submission = pgTable("submission", {
 	userPublicKey: text("user_public_key").notNull(),
 	submittedAt: timestamp("submitted_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
 	signature: text().notNull(),
+	status: submissionStatus().default('waiting').notNull(),
 }, (table) => [
 	index("idx_submission_problem").using("btree", table.problemId.asc().nullsLast().op("int8_ops")),
 	index("idx_submission_submitted").using("btree", table.submittedAt.desc().nullsFirst().op("timestamptz_ops")),

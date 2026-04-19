@@ -1,7 +1,7 @@
 -- Current sql file was generated after introspecting the database
 -- If you want to run this migration please uncomment this code before executing migrations
 /*
-CREATE TYPE "public"."checker_type" AS ENUM('exact', 'epsilon', 'special_judge');--> statement-breakpoint
+CREATE TYPE "public"."submission_status" AS ENUM('waiting', 'judging', 'finished');--> statement-breakpoint
 CREATE TYPE "public"."verdict_result" AS ENUM('AC', 'WA', 'TLE', 'MLE', 'RE', 'CE', 'IE');--> statement-breakpoint
 CREATE TABLE "problem" (
 	"id" bigint PRIMARY KEY NOT NULL,
@@ -14,7 +14,8 @@ CREATE TABLE "submission" (
 	"problem_id" bigserial NOT NULL,
 	"user_public_key" text NOT NULL,
 	"submitted_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"signature" text NOT NULL
+	"signature" text NOT NULL,
+	"status" "submission_status" DEFAULT 'waiting' NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "submission_file" (

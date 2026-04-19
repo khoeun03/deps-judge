@@ -11,7 +11,7 @@ import {
   unique,
 } from 'drizzle-orm/pg-core';
 
-export const checkerType = pgEnum('checker_type', ['exact', 'epsilon', 'special_judge']);
+export const submissionStatus = pgEnum('submission_status', ['waiting', 'judging', 'finished']);
 export const verdictResult = pgEnum('verdict_result', ['AC', 'WA', 'TLE', 'MLE', 'RE', 'CE', 'IE']);
 
 export const problem = pgTable('problem', {
@@ -29,6 +29,7 @@ export const submission = pgTable(
     userPublicKey: text('user_public_key').notNull(),
     submittedAt: timestamp('submitted_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
     signature: text().notNull(),
+    status: submissionStatus().default('waiting').notNull(),
   },
   (table) => [
     index('idx_submission_problem').using('btree', table.problemId.asc().nullsLast().op('int8_ops')),
@@ -69,10 +70,7 @@ export const verdict = pgTable(
     result: verdictResult().notNull(),
     timeMs: integer('time_ms'),
     memoryKb: integer('memory_kb'),
-    problemRevision: integer('problem_revision').notNull(),
-    datasetHash: text('dataset_hash').notNull(),
     judgedAt: timestamp('judged_at', { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-    judgeSignature: text('judge_signature').notNull(),
     invalidatedAt: timestamp('invalidated_at', { withTimezone: true, mode: 'string' }),
     invalidatedReason: text('invalidated_reason'),
   },

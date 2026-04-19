@@ -55,7 +55,20 @@ export default async (app: FastifyInstance) => {
       return {
         id: `#${problem.id}::${process.env.DEPS_JUDGE_DOMAIN}`,
         title: meta.title,
-        statement,
+        content: statement,
+        powFactor: 0,
+        formats: Object.fromEntries(
+          Object.entries(meta.formats).map(([formatName, format]) => {
+            return [
+              formatName,
+              {
+                totalBytes: format.totalBytes,
+                fileCount: format.fileCount,
+                files: format.files,
+              },
+            ];
+          }),
+        ),
       };
     } catch {
       return reply.status(500).send({ error: 'Failed to read problem data' });

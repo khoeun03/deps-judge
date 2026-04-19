@@ -69,6 +69,14 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "submission_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'waiting'"
         }
       },
       "indexes": {
@@ -357,12 +365,12 @@
     }
   },
   "enums": {
-    "public.checker_type": {
-      "name": "checker_type",
+    "public.submission_status": {
+      "name": "submission_status",
       "values": [
-        "exact",
-        "epsilon",
-        "special_judge"
+        "waiting",
+        "judging",
+        "finished"
       ],
       "schema": "public"
     },
