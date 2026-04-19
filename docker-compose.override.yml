@@ -14,6 +14,8 @@ services:
       NODE_ENV: production
       PORT: 3000
       DATABASE_URL: postgres://deps_user:deps_pass@db:5432/deps_judge_db
+      PROBLEMS_PATH: /data/problems
+      DEPS_JUDGE_DOMAIN: deps.rubixdev.net
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -21,6 +23,7 @@ services:
       - db
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./problems:/data/problems:ro
     networks:
       - deps-judge-net
 

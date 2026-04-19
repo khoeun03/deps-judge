@@ -1,4 +1,4 @@
-import { pgTable, bigserial, text, integer, timestamp, index, foreignKey, unique, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, bigint, text, index, foreignKey, bigserial, timestamp, unique, integer, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const checkerType = pgEnum("checker_type", ['exact', 'epsilon', 'special_judge'])
@@ -6,21 +6,10 @@ export const verdictResult = pgEnum("verdict_result", ['AC', 'WA', 'TLE', 'MLE',
 
 
 export const problem = pgTable("problem", {
-	id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	id: bigint({ mode: "number" }).primaryKey().notNull(),
 	title: text().notNull(),
-	statement: text().notNull(),
-	timeLimitMs: integer("time_limit_ms").notNull(),
-	memoryLimitKb: integer("memory_limit_kb").notNull(),
-	checkerType: checkerType("checker_type").default('exact').notNull(),
-	checkerPath: text("checker_path"),
-	datasetPath: text("dataset_path").notNull(),
-	datasetHash: text("dataset_hash").notNull(),
-	allowedLanguages: text("allowed_languages").array(),
-	maxFiles: integer("max_files").default(1).notNull(),
-	maxTotalCodeBytes: integer("max_total_code_bytes").default(65536).notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	revision: integer().default(1).notNull(),
+	problemPath: text("problem_path").notNull(),
 });
 
 export const submission = pgTable("submission", {

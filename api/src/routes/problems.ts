@@ -1,3 +1,7 @@
+import 'dotenv/config';
+
+import { readFileSync } from 'node:fs';
+
 import type { FastifyInstance } from 'fastify';
 
 import { db } from '../db/index.js';
@@ -23,7 +27,10 @@ export default async (app: FastifyInstance) => {
     const totalCount = await db.$count(problem);
 
     return {
-      data: problems,
+      data: problems.map(({ id, title }) => ({
+        id: `#${id}::${process.env.DEPS_JUDGE_DOMAIN}`,
+        title,
+      })),
       totalCount,
     };
   });
@@ -34,15 +41,21 @@ export default async (app: FastifyInstance) => {
     const { problemId } = request.params;
 
     const problem = await db.query.problem.findFirst({
-      columns: {
-        id: true,
-        title: true,
-        statement: true,
-      },
-      where: (fields, { eq }) => eq(fields.id, BigInt(problemId)),
+      where: (fields, { eq }) => eq(fields.id, Number(problemId)),
     });
-    if (!problem) return reply.code(404);
+    if (!problem) return reply.code(404).send({ error: 'Problem not found' });
 
-    return problem;
+    try {
+      const meta = JSON.parse(readFileSync(`${problem.problemPath}/problem.json`, 'utf-8'));
+      const statement = readFileSync(`${problem.problemPath}/statement.md`, 'utf-8');
+
+      return {
+        id: `#${problem.id}::${process.env.DEPS_JUDGE_DOMAIN}`,
+        title: meta.title,
+        statement,
+      };
+    } catch {
+      return reply.status(500).send({ error: 'Failed to read problem data' });
+    }
   });
 };

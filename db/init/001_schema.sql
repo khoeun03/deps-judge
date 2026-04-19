@@ -6,21 +6,9 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE TYPE checker_type AS ENUM ('exact', 'epsilon', 'special_judge');
 
 CREATE TABLE problem (
-    id              BIGSERIAL PRIMARY KEY,
+    id              BIGINT PRIMARY KEY,
     title           TEXT        NOT NULL,
-    statement       TEXT        NOT NULL,
-    time_limit_ms   INT         NOT NULL,
-    memory_limit_kb INT         NOT NULL,
-    checker_type    checker_type NOT NULL DEFAULT 'exact',
-    checker_path    TEXT,
-    dataset_path    TEXT        NOT NULL,
-    dataset_hash    TEXT        NOT NULL,
-    allowed_languages TEXT[],
-    max_files           INT     NOT NULL DEFAULT 1,
-    max_total_code_bytes INT    NOT NULL DEFAULT 65536,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
-    revision        INT         NOT NULL DEFAULT 1
+    problem_path    TEXT        NOT NULL
 );
 
 -- ============================================================

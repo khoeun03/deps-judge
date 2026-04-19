@@ -10,7 +10,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "bigserial",
+          "type": "bigint",
           "primaryKey": true,
           "notNull": true
         },
@@ -20,90 +20,11 @@
           "primaryKey": false,
           "notNull": true
         },
-        "statement": {
-          "name": "statement",
+        "problem_path": {
+          "name": "problem_path",
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "time_limit_ms": {
-          "name": "time_limit_ms",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "memory_limit_kb": {
-          "name": "memory_limit_kb",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "checker_type": {
-          "name": "checker_type",
-          "type": "checker_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'exact'"
-        },
-        "checker_path": {
-          "name": "checker_path",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "dataset_path": {
-          "name": "dataset_path",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "dataset_hash": {
-          "name": "dataset_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "allowed_languages": {
-          "name": "allowed_languages",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "max_files": {
-          "name": "max_files",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "max_total_code_bytes": {
-          "name": "max_total_code_bytes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 65536
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "revision": {
-          "name": "revision",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
         }
       },
       "indexes": {},
@@ -470,16 +391,6 @@
     "columns": {}
   },
   "internal": {
-    "tables": {
-      "problem": {
-        "columns": {
-          "allowed_languages": {
-            "isArray": true,
-            "dimensions": 1,
-            "rawType": "text"
-          }
-        }
-      }
-    }
+    "tables": {}
   }
 }

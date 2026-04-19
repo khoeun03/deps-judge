@@ -4,21 +4,9 @@
 CREATE TYPE "public"."checker_type" AS ENUM('exact', 'epsilon', 'special_judge');--> statement-breakpoint
 CREATE TYPE "public"."verdict_result" AS ENUM('AC', 'WA', 'TLE', 'MLE', 'RE', 'CE', 'IE');--> statement-breakpoint
 CREATE TABLE "problem" (
-	"id" bigserial PRIMARY KEY NOT NULL,
+	"id" bigint PRIMARY KEY NOT NULL,
 	"title" text NOT NULL,
-	"statement" text NOT NULL,
-	"time_limit_ms" integer NOT NULL,
-	"memory_limit_kb" integer NOT NULL,
-	"checker_type" "checker_type" DEFAULT 'exact' NOT NULL,
-	"checker_path" text,
-	"dataset_path" text NOT NULL,
-	"dataset_hash" text NOT NULL,
-	"allowed_languages" text[],
-	"max_files" integer DEFAULT 1 NOT NULL,
-	"max_total_code_bytes" integer DEFAULT 65536 NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"revision" integer DEFAULT 1 NOT NULL
+	"problem_path" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "submission" (
