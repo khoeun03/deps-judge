@@ -7,8 +7,8 @@ services:
         - action: sync
           path: ./api/
           target: /app/
-          ignore:
-            - node_modules/
+        - action: rebuild
+          path: ./api/package.json
     command: pnpm dev
     environment:
       NODE_ENV: production
