@@ -4,6 +4,7 @@ import type { FastifyInstance } from 'fastify';
 
 import { db } from '../db/index.js';
 import { problem } from '../db/schema.js';
+import { sendError } from '../utils/errors.js';
 import { loadProblemMeta, loadProblemStatement } from '../utils/problem.js';
 
 export default async (app: FastifyInstance) => {
@@ -39,14 +40,16 @@ export default async (app: FastifyInstance) => {
   }>('/problems/:problemId', async (request, reply) => {
     const { problemId } = request.params;
 
-    const match = problemId.match(/^(\d+)::.+$/);
+    const match = problemId.match(/^(\d+)::(.+)$/);
     if (!match) return;
 
-    const [_, id] = match;
+    const [_, id, server] = match;
+    if (server != process.env.DEPS_JUDGE_DOMAIN) return sendError(reply, 'WRONG_SERVER', 'Wrong server');
+
     const problem = await db.query.problem.findFirst({
       where: (fields, { eq }) => eq(fields.id, Number(id)),
     });
-    if (!problem) return reply.code(404).send({ error: 'Problem not found' });
+    if (!problem) return sendError(reply, 'NOT_FOUND', 'Problem not found');
 
     try {
       const meta = await loadProblemMeta(problem.problemPath);

@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 
 import { db } from '../db/index.js';
 import { submission, submissionFile } from '../db/schema.js';
+import { sendError } from '../utils/errors.js';
 import { loadProblemMeta } from '../utils/problem.js';
 import { verifySignedData } from '../utils/verify.js';
 
@@ -36,16 +37,16 @@ export default async (app: FastifyInstance) => {
     async (request, reply) => {
       const { problemId } = request.params;
 
-      const match = problemId.match(/^(\d+)::.+$/);
+      const match = problemId.match(/^(\d+)::(.+)$/);
       if (!match) return reply.code(404).send({ error: 'Problem not found' });
 
-      const [_, id] = match;
+      const [_, id, server] = match;
+      if (server != process.env.DEPS_JUDGE_DOMAIN) return sendError(reply, 'WRONG_SERVER', 'Wrong server');
 
-      if (!verifySignedData(request.body)) return reply.code(400).send({ error: 'Invalid signature' });
+      if (!verifySignedData(request.body)) return sendError(reply, 'INVALID_SIGN', 'Invalid signature');
       const { key, data, sign } = request.body;
 
       // TODO: POW 검증
-      console.log(data);
 
       const existingSubmission = await db.query.submission.findFirst({
         where: (fields, { eq }) => eq(fields.signature, sign),
@@ -55,16 +56,16 @@ export default async (app: FastifyInstance) => {
       const problem = await db.query.problem.findFirst({
         where: (fields, { eq }) => eq(fields.id, Number(id)),
       });
-      if (!problem) return reply.code(404).send({ error: 'Problem not found' });
+      if (!problem) return sendError(reply, 'NOT_FOUND', 'Problem not found');
 
       const meta = await loadProblemMeta(problem.problemPath);
       const format = meta.formats[data.format];
-      if (!format) return reply.code(400).send({ error: 'Invalid format' });
+      if (!format) return sendError(reply, 'INVALID_REQUEST', `Invalid format type "${data.format}"`);
 
       if (Object.keys(data.files).length < (format.fileCount?.min ?? -Infinity))
-        return reply.code(400).send({ error: 'Out of file count limit' });
+        return sendError(reply, 'INVALID_REQUEST', 'Out of file count limit');
       if (Object.keys(data.files).length > (format.fileCount?.max ?? Infinity))
-        return reply.code(400).send({ error: 'Out of file count limit' });
+        return sendError(reply, 'INVALID_REQUEST', 'Out of file count limit');
 
       let totalBytes = 0;
       let hasInvalidFile = false;
@@ -80,11 +81,11 @@ export default async (app: FastifyInstance) => {
         }
       });
 
-      if (hasInvalidFile) return reply.code(400).send({ error: 'Invalid format' });
+      if (hasInvalidFile) return sendError(reply, 'INVALID_REQUEST', 'Invalid format');
       if (totalBytes < (format.totalBytes?.min ?? -Infinity))
-        return reply.code(400).send({ error: 'Out of total bytes limit' });
+        return sendError(reply, 'INVALID_REQUEST', 'Out of total bytes limit');
       if (totalBytes > (format.totalBytes?.max ?? Infinity))
-        return reply.code(400).send({ error: 'Out of total bytes limit' });
+        return sendError(reply, 'INVALID_REQUEST', 'Out of total bytes limit');
 
       const submissionId = await db.transaction(async (tx) => {
         const [newSubmission] = await tx
