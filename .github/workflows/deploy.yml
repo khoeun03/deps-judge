@@ -27,6 +27,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -35,6 +38,7 @@ jobs:
         with:
           context: ./api
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.IMAGE_PREFIX }}/api:latest
             ${{ env.IMAGE_PREFIX }}/api:${{ github.sha }}
@@ -46,6 +50,7 @@ jobs:
         with:
           context: ./worker
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.IMAGE_PREFIX }}/worker:latest
             ${{ env.IMAGE_PREFIX }}/worker:${{ github.sha }}
@@ -57,6 +62,7 @@ jobs:
         with:
           context: ./worker/image/sandbox
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.IMAGE_PREFIX }}/sandbox:latest
             ${{ env.IMAGE_PREFIX }}/sandbox:${{ github.sha }}
