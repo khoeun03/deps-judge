@@ -1,20 +1,26 @@
 services:
   api:
+    image: ghcr.io/khoeun03/deps-judge/api:latest
     build:
       context: ./api
     environment:
-      NODE_ENV: production
-      PORT: 3000
-      DATABASE_URL: postgres://deps_user:deps_pass@db:5432/deps_judge_db
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
+      DATABASE_URL: ${DATABASE_URL:-postgres://deps_user:deps_pass@db:5432/deps_judge_db}
+      PROBLEMS_PATH: ${PROBLEMS_PATH:-/data/problems}
+      DEPS_JUDGE_DOMAIN: ${DEPS_JUDGE_DOMAIN}
     ports:
       - "3000:3000"
     restart: unless-stopped
     depends_on:
       - db
+    volumes:
+      - ./problems:/data/problems:ro
     networks:
       - deps-judge-net
 
   worker:
+    image: ghcr.io/khoeun03/deps-judge/worker:latest
     build:
       context: ./worker
     volumes:
@@ -22,27 +28,22 @@ services:
       - ./problems:/data/problems:ro
       - /tmp/deps-judge:/tmp/deps-judge
     environment:
-      DATABASE_URL: postgres://deps_user:deps_pass@db:5432/deps_judge_db
-      WORK_DIR: /tmp/deps-judge
+      DATABASE_URL: ${DATABASE_URL:-postgres://deps_user:deps_pass@db:5432/deps_judge_db}
+      WORK_DIR: ${WORK_DIR:-/tmp/deps-judge}
+    restart: unless-stopped
     depends_on:
       - db
     networks:
       - deps-judge-net
-
-  sandbox-build:
-    build:
-      context: ./worker/image/sandbox
-    image: deps-judge-sandbox
-    entrypoint: ["echo", "sandbox image ready"]
 
   db:
     image: postgres:16
     container_name: deps-judge-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: deps_user
-      POSTGRES_PASSWORD: deps_pass
-      POSTGRES_DB: deps_judge_db
+      POSTGRES_USER: ${POSTGRES_USER:-deps_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-deps_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-deps_judge_db}
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d
