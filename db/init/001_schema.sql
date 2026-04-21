@@ -52,7 +52,7 @@ CREATE TYPE verdict_result AS ENUM (
     'OLE',  -- Output Limit Exceeded
     'RE',   -- Runtime Error
     'CE',   -- Compilation Error
-    'IE'    -- Internal Error
+    'UE'    -- Internal Error
 );
 
 CREATE TABLE verdict (

@@ -8,7 +8,7 @@ import { db } from './db/index.js';
 import { submission, verdict } from './db/schema.js';
 import { loadProblemMeta, loadTestCases } from './utils/problem.js';
 
-type VerdictResult = 'AC' | 'WA' | 'TLE' | 'MLE' | 'OLE' | 'RE' | 'CE' | 'IE';
+type VerdictResult = 'AC' | 'WA' | 'TLE' | 'MLE' | 'OLE' | 'RE' | 'CE' | 'UE';
 
 const pollAndJudge = async () => {
   const sub = await db.transaction(async (tx) => {
@@ -158,7 +158,7 @@ const pollAndJudge = async () => {
         .insert(verdict)
         .values({
           submissionId: sub.id,
-          result: 'IE',
+          result: 'UE',
         })
         .returning();
       return judged;
