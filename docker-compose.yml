@@ -10,7 +10,7 @@ services:
       PROBLEMS_PATH: ${PROBLEMS_PATH:-/data/problems}
       DEPS_JUDGE_DOMAIN: ${DEPS_JUDGE_DOMAIN}
     ports:
-      - "3000:3000"
+      - "4000:3000"
     restart: unless-stopped
     depends_on:
       - db
@@ -30,6 +30,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL:-postgres://deps_user:deps_pass@db:5432/deps_judge_db}
       WORK_DIR: ${WORK_DIR:-/tmp/deps-judge}
+      PROBLEMS_PATH: ${PROBLEMS_PATH:-/data/problems}
     restart: unless-stopped
     depends_on:
       - db
