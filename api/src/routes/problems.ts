@@ -56,7 +56,7 @@ export default async (app: FastifyInstance) => {
       const statement = await loadProblemStatement(problem.problemPath);
 
       return {
-        id: `#${problem.id}::${process.env.DEPS_JUDGE_DOMAIN}`,
+        id: `${problem.id}::${process.env.DEPS_JUDGE_DOMAIN}`,
         title: meta.title,
         content: statement,
         powFactor: 0,
