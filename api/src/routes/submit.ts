@@ -20,6 +20,7 @@ export default async (app: FastifyInstance) => {
         format: string;
         files: Record<string, SubmissionFile>;
         signedAt: Date;
+        intent: string;
       };
       sign: string;
       pow: string;
@@ -45,6 +46,12 @@ export default async (app: FastifyInstance) => {
 
       if (!verifySignedData(request.body)) return sendError(reply, 'INVALID_SIGN', 'Invalid signature');
       const { key, data, sign } = request.body;
+
+      if (data.intent !== 'deps/problemSubmit') return sendError(reply, 'INVALID_REQUEST', 'Invalid intent');
+
+      const now = new Date();
+      if (Math.abs(now.getTime() - data.signedAt.getTime()) > 180 * 1000)
+        return sendError(reply, 'INVALID_REQUEST', 'signedAt is outdated');
 
       // TODO: POW 검증
 
