@@ -77,7 +77,6 @@ export default async (app: FastifyInstance) => {
         if (!file) return;
         if (!file.languages.includes(language)) {
           hasInvalidFile = true;
-          return;
         }
       });
 
@@ -111,7 +110,7 @@ export default async (app: FastifyInstance) => {
         return newSubmission.id;
       });
 
-      return { submissionId };
+      return { submissionId: submissionId.toString() };
     },
   );
 };

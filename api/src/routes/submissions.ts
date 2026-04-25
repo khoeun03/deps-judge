@@ -30,8 +30,9 @@ export default async (app: FastifyInstance) => {
             {
               identity: `::${submission.userPublicKey}`,
               problemId: submission.problemId,
-              score: 1.0,
+              score: 1,
               signedAt: submission.submittedAt,
+              intent: 'deps/SolveCertificate',
             },
             app.serverKey.privateKey,
             app.serverKey.publicKey,
