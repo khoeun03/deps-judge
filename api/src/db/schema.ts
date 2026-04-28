@@ -15,7 +15,6 @@ export const submissionStatus = pgEnum('submission_status', ['waiting', 'judging
 export const verdictResult = pgEnum('verdict_result', ['AC', 'WA', 'TLE', 'MLE', 'OLE', 'RE', 'CE', 'UE']);
 
 export const problem = pgTable('problem', {
-  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
   id: bigint({ mode: 'number' }).primaryKey().notNull(),
   title: text().notNull(),
   problemPath: text('problem_path').notNull(),
@@ -72,8 +71,6 @@ export const verdict = pgTable(
     timeMs: integer('time_ms'),
     memoryKb: integer('memory_kb'),
     judgedAt: timestamp('judged_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-    invalidatedAt: timestamp('invalidated_at', { withTimezone: true, mode: 'date' }),
-    invalidatedReason: text('invalidated_reason'),
   },
   (table) => [
     index('idx_verdict_judged').using('btree', table.judgedAt.desc().nullsFirst().op('timestamptz_ops')),
@@ -83,6 +80,23 @@ export const verdict = pgTable(
       columns: [table.submissionId],
       foreignColumns: [submission.id],
       name: 'verdict_submission_id_fkey',
+    }),
+  ],
+);
+
+export const erratum = pgTable(
+  'erratum',
+  {
+    id: bigserial({ mode: 'number' }).primaryKey().notNull(),
+    problemId: bigint('problem_id', { mode: 'number' }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+  },
+  (table) => [
+    index('idx_erratum_created').using('btree', table.createdAt.desc().nullsFirst().op('timestamptz_ops')),
+    foreignKey({
+      columns: [table.problemId],
+      foreignColumns: [problem.id],
+      name: 'erratum_problem_id_fkey',
     }),
   ],
 );

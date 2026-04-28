@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 
+import erratumRoute from './errata.js';
 import infoRoute from './info.js';
 import problemRotue from './problems.js';
 import submissionRotue from './submissions.js';
@@ -10,4 +11,5 @@ export default async (app: FastifyInstance) => {
   app.register(problemRotue, { prefix: '/_deps/judge' });
   app.register(submitRoute, { prefix: '/_deps/judge' });
   app.register(submissionRotue, { prefix: '/_deps/judge' });
+  app.register(erratumRoute, { prefix: '/_deps/judge' });
 };

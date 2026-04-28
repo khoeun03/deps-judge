@@ -51,6 +51,11 @@ export default async (app: FastifyInstance) => {
     });
     if (!problem) return sendError(reply, 'NOT_FOUND', 'Problem not found');
 
+    const erratum = await db.query.erratum.findFirst({
+      where: (fields, { eq }) => eq(fields.problemId, Number(id)),
+      orderBy: (fields, { desc }) => desc(fields.createdAt),
+    });
+
     try {
       const meta = await loadProblemMeta(problem.problemPath);
       const statement = await loadProblemStatement(problem.problemPath);
@@ -59,6 +64,7 @@ export default async (app: FastifyInstance) => {
         id: `${problem.id}::${process.env.DEPS_JUDGE_DOMAIN}`,
         title: meta.title,
         content: statement,
+        invalidBefore: erratum?.createdAt,
         powFactor: 0,
         formats: Object.fromEntries(
           Object.entries(meta.formats).map(([formatName, format]) => {

@@ -1,11 +1,11 @@
 import { pgTable, bigint, text, index, foreignKey, bigserial, timestamp, unique, integer, pgEnum } from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm"
 
 export const submissionStatus = pgEnum("submission_status", ['waiting', 'judging', 'finished'])
-export const verdictResult = pgEnum("verdict_result", ['AC', 'WA', 'TLE', 'MLE', 'RE', 'CE', 'IE'])
+export const verdictResult = pgEnum("verdict_result", ['AC', 'WA', 'TLE', 'MLE', 'OLE', 'RE', 'CE', 'UE'])
 
 
 export const problem = pgTable("problem", {
-	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
 	id: bigint({ mode: "number" }).primaryKey().notNull(),
 	title: text().notNull(),
 	problemPath: text("problem_path").notNull(),
@@ -13,7 +13,7 @@ export const problem = pgTable("problem", {
 
 export const submission = pgTable("submission", {
 	id: bigserial({ mode: "number" }).primaryKey().notNull(),
-	problemId: bigserial("problem_id", { mode: "number" }).notNull(),
+	problemId: bigint("problem_id", { mode: "number" }).notNull(),
 	userPublicKey: text("user_public_key").notNull(),
 	format: text().notNull(),
 	submittedAt: timestamp("submitted_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
@@ -32,7 +32,7 @@ export const submission = pgTable("submission", {
 
 export const submissionFile = pgTable("submission_file", {
 	id: bigserial({ mode: "number" }).primaryKey().notNull(),
-	submissionId: bigserial("submission_id", { mode: "number" }).notNull(),
+	submissionId: bigint("submission_id", { mode: "number" }).notNull(),
 	filename: text().notNull(),
 	language: text(),
 	code: text().notNull(),
@@ -47,13 +47,11 @@ export const submissionFile = pgTable("submission_file", {
 
 export const verdict = pgTable("verdict", {
 	id: bigserial({ mode: "number" }).primaryKey().notNull(),
-	submissionId: bigserial("submission_id", { mode: "number" }).notNull(),
+	submissionId: bigint("submission_id", { mode: "number" }).notNull(),
 	result: verdictResult().notNull(),
 	timeMs: integer("time_ms"),
 	memoryKb: integer("memory_kb"),
 	judgedAt: timestamp("judged_at", { withTimezone: true, mode: 'string' }).defaultNow().notNull(),
-	invalidatedAt: timestamp("invalidated_at", { withTimezone: true, mode: 'string' }),
-	invalidatedReason: text("invalidated_reason"),
 }, (table) => [
 	index("idx_verdict_judged").using("btree", table.judgedAt.desc().nullsFirst().op("timestamptz_ops")),
 	index("idx_verdict_result").using("btree", table.result.asc().nullsLast().op("enum_ops")),
@@ -62,5 +60,19 @@ export const verdict = pgTable("verdict", {
 			columns: [table.submissionId],
 			foreignColumns: [submission.id],
 			name: "verdict_submission_id_fkey"
+		}),
+	unique("verdict_submission_id_key").on(table.submissionId),
+]);
+
+export const erratum = pgTable("erratum", {
+	id: bigserial({ mode: "number" }).primaryKey().notNull(),
+	problemId: bigint("problem_id", { mode: "number" }).notNull(),
+	createdAt: timestamp("created_at", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_erratum_created").using("btree", table.createdAt.desc().nullsFirst().op("timestamptz_ops")),
+	foreignKey({
+			columns: [table.problemId],
+			foreignColumns: [problem.id],
+			name: "erratum_problem_id_fkey"
 		}),
 ]);

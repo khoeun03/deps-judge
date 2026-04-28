@@ -1,22 +1,17 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
--- ============================================================
--- Problem
--- ============================================================
 CREATE TABLE problem (
     id              BIGINT PRIMARY KEY,
     title           TEXT        NOT NULL,
     problem_path    TEXT        NOT NULL
 );
 
--- ============================================================
--- Submission
--- ============================================================
+
 CREATE TYPE submission_status AS ENUM ('waiting', 'judging', 'finished');
 
 CREATE TABLE submission (
     id              BIGSERIAL PRIMARY KEY,
-    problem_id      BIGSERIAL   NOT NULL REFERENCES problem(id),
+    problem_id      BIGINT      NOT NULL REFERENCES problem(id),
     user_public_key TEXT        NOT NULL,
     format          TEXT        NOT NULL,
     submitted_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -28,12 +23,9 @@ CREATE INDEX idx_submission_problem   ON submission(problem_id);
 CREATE INDEX idx_submission_user      ON submission(user_public_key);
 CREATE INDEX idx_submission_submitted ON submission(submitted_at DESC);
 
--- ============================================================
--- Submission File
--- ============================================================
 CREATE TABLE submission_file (
     id              BIGSERIAL PRIMARY KEY,
-    submission_id   BIGSERIAL   NOT NULL REFERENCES submission(id) ON DELETE CASCADE,
+    submission_id   BIGINT      NOT NULL REFERENCES submission(id) ON DELETE CASCADE,
     filename        TEXT        NOT NULL,
     language        TEXT,
     code            TEXT        NOT NULL,
@@ -41,9 +33,7 @@ CREATE TABLE submission_file (
     UNIQUE (submission_id, filename)
 );
 
--- ============================================================
--- Verdict
--- ============================================================
+
 CREATE TYPE verdict_result AS ENUM (
     'AC',   -- Accepted
     'WA',   -- Wrong Answer
@@ -57,15 +47,22 @@ CREATE TYPE verdict_result AS ENUM (
 
 CREATE TABLE verdict (
     id                  BIGSERIAL PRIMARY KEY,
-    submission_id       BIGSERIAL       NOT NULL REFERENCES submission(id),
+    submission_id       BIGINT          UNIQUE NOT NULL REFERENCES submission(id),
     result              verdict_result  NOT NULL,
     time_ms             INT,
     memory_kb           INT,
-    judged_at           TIMESTAMPTZ     NOT NULL DEFAULT now(),
-    invalidated_at      TIMESTAMPTZ,
-    invalidated_reason  TEXT
+    judged_at           TIMESTAMPTZ     NOT NULL DEFAULT now()
 );
 
 CREATE INDEX idx_verdict_submission ON verdict(submission_id);
 CREATE INDEX idx_verdict_result     ON verdict(result);
 CREATE INDEX idx_verdict_judged     ON verdict(judged_at DESC);
+
+
+CREATE TABLE erratum (
+    id              BIGSERIAL PRIMARY KEY,
+    problem_id      BIGINT  NOT NULL REFERENCES problem(id),
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_erratum_created ON erratum(created_at DESC);
